@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAPAN RAIL HUB - 全国鉄道統合運行監視システム</title>
+    <title>JAPAN RAIL HUB - 全国鉄道統合運行監視システム (Zoom & Station Expanded)</title>
     <style>
         :root {
             --bg-color: #080b10;
-            --panel-bg: rgba(15, 23, 36, 0.75);
-            --panel-border: rgba(56, 189, 248, 0.2);
+            --panel-bg: rgba(15, 23, 36, 0.85);
+            --panel-border: rgba(56, 189, 248, 0.25);
             --accent-cyan: #00f0ff;
             --accent-green: #00ff88;
             --accent-warn: #ffbb00;
@@ -35,33 +35,31 @@
             flex-direction: column;
         }
 
-        /* ヘッダー */
         header {
-            background: rgba(10, 15, 25, 0.9);
+            background: rgba(10, 15, 25, 0.95);
             border-bottom: 1px solid var(--panel-border);
-            padding: 12px 24px;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.05);
             z-index: 10;
         }
 
         .logo-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .logo-icon {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
             clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
         }
 
         .logo-text {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 800;
             letter-spacing: 2px;
             background: linear-gradient(90deg, #fff, var(--accent-cyan));
@@ -72,64 +70,61 @@
         .system-status {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             font-family: var(--font-mono);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         .status-badge {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid var(--accent-green);
             color: var(--accent-green);
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 3px 10px;
+            border-radius: 12px;
         }
 
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--accent-green);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
             0% { opacity: 0.4; }
-            50% { opacity: 1; transform: scale(1.2); }
+            50% { opacity: 1; transform: scale(1.3); }
             100% { opacity: 0.4; }
         }
 
-        /* メインコンテナ */
         .dashboard-container {
             flex: 1;
             display: grid;
-            grid-template-columns: 320px 1fr 360px;
-            gap: 12px;
-            padding: 12px;
-            height: calc(100vh - 60px);
+            grid-template-columns: 300px 1fr 340px;
+            gap: 10px;
+            padding: 10px;
+            height: calc(100vh - 52px);
         }
 
-        /* 共通パネルスタイル */
         .panel {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            backdrop-filter: blur(12px);
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .panel-header {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid var(--panel-border);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 1px;
             color: var(--accent-cyan);
@@ -139,66 +134,38 @@
         }
 
         .panel-body {
-            padding: 12px;
+            padding: 10px;
             flex: 1;
             overflow-y: auto;
         }
 
-        /* 左パネル：路線一覧 */
         .line-item {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            padding: 12px;
+            border-radius: 5px;
+            padding: 10px;
             margin-bottom: 8px;
-            transition: all 0.2s ease;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .line-item:hover, .line-item.active {
             border-color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.05);
+            background: rgba(0, 240, 255, 0.08);
         }
 
-        .line-title {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-        }
-
-        .line-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            font-family: var(--font-mono);
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-cyan);
-            width: 100%;
-            transition: width 0.5s ease;
-        }
-
-        /* 中央：Canvasレーダーマップ */
         .map-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #0d1527 0%, #050811 100%);
-            border-radius: 8px;
+            background: radial-gradient(circle at center, #0a1220 0%, #03050a 100%);
+            border-radius: 6px;
             overflow: hidden;
+            cursor: grab;
+        }
+
+        .map-wrapper:active {
+            cursor: grabbing;
         }
 
         #railMap {
@@ -207,88 +174,99 @@
             display: block;
         }
 
-        .map-controls {
+        /* マップズームコントロール UI */
+        .zoom-controls {
             position: absolute;
-            top: 16px;
-            left: 16px;
+            bottom: 20px;
+            right: 20px;
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 5;
         }
 
-        .btn {
-            background: rgba(15, 23, 36, 0.8);
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(15, 23, 36, 0.85);
             border: 1px solid var(--panel-border);
-            color: var(--text-main);
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 6px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             backdrop-filter: blur(4px);
             transition: all 0.2s;
         }
 
-        .btn:hover, .btn.active {
+        .zoom-btn:hover {
             background: var(--accent-cyan);
             color: #000;
-            font-weight: 700;
             box-shadow: 0 0 12px var(--accent-cyan);
         }
 
-        /* 右パネル：テレメトリ＆ログ */
+        .zoom-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 15, 25, 0.8);
+            border: 1px solid var(--panel-border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            pointer-events: none;
+        }
+
+        .station-detail-card {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
         .gauge-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .gauge-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 4px;
+            padding: 8px;
             text-align: center;
         }
 
-        .gauge-value {
-            font-size: 1.4rem;
-            font-weight: 700;
+        .gauge-val {
+            font-size: 1.2rem;
+            font-weight: bold;
             font-family: var(--font-mono);
             color: var(--accent-cyan);
-            margin: 4px 0;
-        }
-
-        .gauge-label {
-            font-size: 0.7rem;
-            color: var(--text-sub);
         }
 
         .terminal-log {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(0, 240, 255, 0.15);
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 4px;
+            padding: 8px;
             font-family: var(--font-mono);
-            font-size: 0.75rem;
-            height: 220px;
+            font-size: 0.7rem;
+            height: 180px;
             overflow-y: auto;
-            color: #a0aec0;
+            color: #8b949e;
         }
 
-        .log-entry {
-            margin-bottom: 6px;
-            line-height: 1.4;
-        }
-
-        .log-time {
-            color: var(--accent-cyan);
-            margin-right: 6px;
-        }
-
-        .log-tag {
-            color: var(--accent-green);
-            margin-right: 6px;
-        }
+        .log-entry { margin-bottom: 4px; }
+        .log-time { color: var(--accent-cyan); margin-right: 4px; }
+        .log-tag { color: var(--accent-green); margin-right: 4px; }
     </style>
 </head>
 <body>
@@ -299,321 +277,426 @@
             <div class="logo-text">JAPAN RAIL HUB</div>
         </div>
         <div class="system-status">
-            <div>全国運行率: <span style="color: var(--accent-green); font-weight: bold;">99.8%</span></div>
-            <div>監視車両数: <span style="color: var(--accent-cyan); font-weight: bold;">1,420編成</span></div>
+            <div>全線監視: <span style="color: var(--accent-green);">全84駅 同期完了</span></div>
             <div class="status-badge">
                 <div class="pulse-dot"></div>
-                SYSTEM ONLINE
+                ZOOM & INTERACTIVE ONLINE
             </div>
             <div id="clock" style="color: var(--text-sub);">12:00:00 JST</div>
         </div>
     </header>
 
     <div class="dashboard-container">
-        <!-- 左パネル：主要路線ステータス -->
+        <!-- 左パネル -->
         <div class="panel">
-            <div class="panel-header">
-                主要路線リアルタイム監視
-                <span style="font-size: 0.7rem; color: var(--text-sub);">LIVE</span>
-            </div>
+            <div class="panel-header">監視路線一覧</div>
             <div class="panel-body">
-                <div class="line-item active">
-                    <div class="line-title">
-                        <span>東海道・山陽新幹線</span>
-                        <span style="color: var(--accent-green);">平常運転</span>
-                    </div>
-                    <div class="line-meta">
-                        <span>東京 ⇄ 博多</span>
-                        <span>のぞみ・ひかり・こだま</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                <div class="line-item active" onclick="focusRegion(134.5, 34.5, 3.5)">
+                    <div style="font-weight: bold;">山陽新幹線・山口エリア</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">徳山 / 新山口 / 厚狭 / 新下関</div>
                 </div>
-
-                <div class="line-item">
-                    <div class="line-title">
-                        <span>東北・北海道新幹線</span>
-                        <span style="color: var(--accent-green);">平常運転</span>
-                    </div>
-                    <div class="line-meta">
-                        <span>東京 ⇄ 新函館北斗</span>
-                        <span>はやぶさ・やまびこ</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 98%;"></div></div>
+                <div class="line-item" onclick="focusRegion(138.5, 35.3, 2.8)">
+                    <div style="font-weight: bold;">東海道新幹線</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 新大阪</div>
                 </div>
-
-                <div class="line-item">
-                    <div class="line-title">
-                        <span>次世代試作線（S300/K700）</span>
-                        <span style="color: var(--accent-cyan);">高速テスト走行中</span>
-                    </div>
-                    <div class="line-meta">
-                        <span>新山口 ⇄ 徳山 ⇄ 広島</span>
-                        <span>360 km/h 連続計測</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 100%; background: var(--accent-cyan);"></div></div>
+                <div class="line-item" onclick="focusRegion(140.5, 38.5, 2.0)">
+                    <div style="font-weight: bold;">東北・北海道新幹線</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 新函館北斗</div>
                 </div>
-
-                <div class="line-item">
-                    <div class="line-title">
-                        <span>山陽本線（厚狭〜徳山）</span>
-                        <span style="color: var(--accent-warn);">一部混雑</span>
-                    </div>
-                    <div class="line-meta">
-                        <span>下関 ⇄ 岩国</span>
-                        <span>遅延: 約2分</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 85%; background: var(--accent-warn);"></div></div>
+                <div class="line-item" onclick="focusRegion(136.8, 36.5, 3.0)">
+                    <div style="font-weight: bold;">北陸新幹線</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 敦賀</div>
                 </div>
-
-                <div class="line-item">
-                    <div class="line-title">
-                        <span>北陸新幹線</span>
-                        <span style="color: var(--accent-green);">平常運転</span>
-                    </div>
-                    <div class="line-meta">
-                        <span>東京 ⇄ 敦賀</span>
-                        <span>かがやき・はくたか</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                <div class="line-item" onclick="focusRegion(130.5, 32.5, 3.0)">
+                    <div style="font-weight: bold;">九州新幹線</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">博多 ⇄ 鹿児島中央</div>
                 </div>
             </div>
         </div>
 
-        <!-- 中央パネル：マッププレビュー -->
-        <div class="panel" style="background: transparent; border: none; box-shadow: none;">
-            <div class="map-wrapper">
+        <!-- 中央：Canvasマップ（ズーム・パン対応） -->
+        <div class="panel" style="background: transparent; border: none;">
+            <div class="map-wrapper" id="mapWrapper">
                 <canvas id="railMap"></canvas>
-                <div class="map-controls">
-                    <button class="btn active">全路線ネットワーク</button>
-                    <button class="btn">新幹線メイン</button>
-                    <button class="btn">風圧・気流オーバーレイ</button>
+                
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomInBtn" title="拡大">+</button>
+                    <button class="zoom-btn" id="zoomOutBtn" title="縮小">−</button>
+                    <button class="zoom-btn" id="zoomResetBtn" style="font-size: 0.8rem;" title="全体表示">↺</button>
+                </div>
+
+                <div class="zoom-info" id="zoomInfo">
+                    SCALE: 100% | DRAG TO MOVE
                 </div>
             </div>
         </div>
 
-        <!-- 右パネル：テレメトリ＆システムログ -->
+        <!-- 右パネル：選択駅情報＆テレメトリ -->
         <div class="panel">
-            <div class="panel-header">車両・風圧・テレメトリ</div>
+            <div class="panel-header">駅・車両テレメトリ</div>
             <div class="panel-body">
+                <div class="station-detail-card" id="stationDetail">
+                    <div style="font-size: 0.75rem; color: var(--accent-cyan);">SELECTED STATION</div>
+                    <div id="stName" style="font-size: 1.3rem; font-weight: bold; margin: 2px 0;">徳山 (Tokuyama)</div>
+                    <div id="stLine" style="font-size: 0.75rem; color: var(--text-sub);">山陽新幹線 / 山陽本線</div>
+                    <div style="margin-top: 8px; font-size: 0.75rem;">
+                        <div>通過限界風速: <span style="color: var(--accent-green);">25.0 m/s</span></div>
+                        <div>現在風速: <span id="stWind" style="color: var(--accent-cyan);">2.4 m/s</span></div>
+                    </div>
+                </div>
+
                 <div class="gauge-container">
                     <div class="gauge-card">
-                        <div class="gauge-label">最高通過速度</div>
-                        <div class="gauge-value" id="speedVal">285 <span style="font-size: 0.8rem;">km/h</span></div>
+                        <div style="font-size: 0.65rem; color: var(--text-sub);">S300/K700 通過速度</div>
+                        <div class="gauge-val" id="speedVal">358 <span style="font-size: 0.7rem;">km/h</span></div>
                     </div>
                     <div class="gauge-card">
-                        <div class="gauge-label">編成表面風圧</div>
-                        <div class="gauge-value" id="pressureVal">1.24 <span style="font-size: 0.8rem;">kPa</span></div>
-                    </div>
-                    <div class="gauge-card">
-                        <div class="gauge-label">架線離線率</div>
-                        <div class="gauge-value" style="color: var(--accent-green);">0.02 %</div>
-                    </div>
-                    <div class="gauge-card">
-                        <div class="gauge-label">軌道変位指数</div>
-                        <div class="gauge-value" style="color: var(--accent-green);">0.11 mm</div>
+                        <div style="font-size: 0.65rem; color: var(--text-sub);">架線電圧</div>
+                        <div class="gauge-val">25.0 <span style="font-size: 0.7rem;">kV</span></div>
                     </div>
                 </div>
 
-                <div style="font-size: 0.8rem; font-weight: bold; margin-bottom: 8px; color: var(--accent-cyan);">
-                    リアルタイム監視ログ
+                <div style="font-size: 0.75rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 6px;">
+                    システム・通過センサログ
                 </div>
-                <div class="terminal-log" id="logTerminal">
-                    <div class="log-entry"><span class="log-time">[12:00:01]</span><span class="log-tag">[SYS]</span>全国統合データベース同期完了</div>
-                    <div class="log-entry"><span class="log-time">[12:00:03]</span><span class="log-tag">[TRAIN]</span>のぞみ22号 (N700S) 新山口駅定刻発車</div>
-                    <div class="log-entry"><span class="log-time">[12:00:07]</span><span class="log-tag">[SENSOR]</span>徳山駅3番線風速センサー: 2.1m/s 正常</div>
-                    <div class="log-entry"><span class="log-time">[12:00:12]</span><span class="log-tag">[TEST]</span>S300系開発機 A編成：風圧シミュレーションログ取得中</div>
-                </div>
+                <div class="terminal-log" id="logTerminal"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 時計更新
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toTimeString().split(' ')[0] + ' JST';
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // リアルタイム・数値揺らぎ演出
+        // 時計
         setInterval(() => {
-            const speed = (280 + Math.random() * 10).toFixed(0);
-            const pressure = (1.18 + Math.random() * 0.15).toFixed(2);
-            document.getElementById('speedVal').innerHTML = `${speed} <span style="font-size: 0.8rem;">km/h</span>`;
-            document.getElementById('pressureVal').innerHTML = `${pressure} <span style="font-size: 0.8rem;">kPa</span>`;
-        }, 1500);
+            document.getElementById('clock').innerText = new Date().toTimeString().split(' ')[0] + ' JST';
+        }, 1000);
 
-        // ターミナルログ追加
-        const logTerminal = document.getElementById('logTerminal');
-        const stations = ['東京', '名古屋', '新大阪', '岡山', '新山口', '徳山', '博多', '仙台'];
-        const types = ['のぞみ', 'ひかり', 'さくら', 'はやぶさ', '回送試験列車'];
-        
-        setInterval(() => {
-            const time = new Date().toTimeString().split(' ')[0];
-            const st = stations[Math.floor(Math.random() * stations.length)];
-            const tp = types[Math.floor(Math.random() * types.length)];
-            const num = Math.floor(Math.random() * 100) + 1;
-            
-            const log = document.createElement('div');
-            log.className = 'log-entry';
-            log.innerHTML = `<span class="log-time">[${time}]</span><span class="log-tag">[LIVE]</span>${tp}${num}号：${st}セクター通過検知 (正常)`;
-            logTerminal.appendChild(log);
-            logTerminal.scrollTop = logTerminal.scrollHeight;
+        // --- 全新幹線 リアル駅データベース ---
+        const stations = [
+            // 東海道・山陽・九州新幹線
+            { id: 'kagoshima', name: '鹿児島中央', lat: 31.58, lon: 130.54, hub: true },
+            { id: 'sendai_k', name: '川内', lat: 31.81, lon: 130.30, hub: false },
+            { id: 'izumi', name: '出水', lat: 32.09, lon: 130.35, hub: false },
+            { id: 'shinminamata', name: '新水俣', lat: 32.21, lon: 130.40, hub: false },
+            { id: 'shinyatsushiro', name: '新八代', lat: 32.48, lon: 130.63, hub: false },
+            { id: 'kumamoto', name: '熊本', lat: 32.79, lon: 130.69, hub: true },
+            { id: 'shintamana', name: '新玉名', lat: 32.93, lon: 130.57, hub: false },
+            { id: 'shinomuta', name: '新大牟田', lat: 33.06, lon: 130.49, hub: false },
+            { id: 'chikugo', name: '筑後船小屋', lat: 33.21, lon: 130.51, hub: false },
+            { id: 'kurume', name: '久留米', lat: 33.32, lon: 130.50, hub: false },
+            { id: 'shintosu', name: '新鳥栖', lat: 33.37, lon: 130.50, hub: false },
+            { id: 'hakata', name: '博多', lat: 33.59, lon: 130.42, hub: true },
+            { id: 'kokura', name: '小倉', lat: 33.88, lon: 130.88, hub: true },
+            { id: 'shinshimonoseki', name: '新下関', lat: 34.02, lon: 130.93, hub: false },
+            { id: 'asa', name: '厚狭', lat: 34.05, lon: 131.15, hub: false },
+            { id: 'shinyamaguchi', name: '新山口', lat: 34.09, lon: 131.48, hub: true },
+            { id: 'tokuyama', name: '徳山', lat: 34.05, lon: 131.80, hub: true },
+            { id: 'shiniwakuni', name: '新岩国', lat: 34.13, lon: 132.14, hub: false },
+            { id: 'hiroshima', name: '広島', lat: 34.39, lon: 132.47, hub: true },
+            { id: 'higashihiroshima', name: '東広島', lat: 34.42, lon: 132.74, hub: false },
+            { id: 'mihara', name: '三原', lat: 34.40, lon: 133.08, hub: false },
+            { id: 'shinonomichi', name: '新尾道', lat: 34.43, lon: 133.19, hub: false },
+            { id: 'fukuyama', name: '福山', lat: 34.48, lon: 133.36, hub: false },
+            { id: 'shinkurashiki', name: '新倉敷', lat: 34.56, lon: 133.68, hub: false },
+            { id: 'okayama', name: '岡山', lat: 34.67, lon: 133.92, hub: true },
+            { id: 'aioi', name: '相生', lat: 34.81, lon: 134.46, hub: false },
+            { id: 'himeji', name: '姫路', lat: 34.83, lon: 134.69, hub: false },
+            { id: 'nishiakashi', name: '西明石', lat: 34.67, lon: 134.96, hub: false },
+            { id: 'shinkobe', name: '新神戸', lat: 34.70, lon: 135.19, hub: false },
+            { id: 'shinosaka', name: '新大阪', lat: 34.73, lon: 135.50, hub: true },
+            { id: 'kyoto', name: '京都', lat: 34.98, lon: 135.76, hub: true },
+            { id: 'maibara', name: '米原', lat: 35.31, lon: 136.29, hub: false },
+            { id: 'gifuhashima', name: '岐阜羽島', lat: 35.32, lon: 136.70, hub: false },
+            { id: 'nagoya', name: '名古屋', lat: 35.17, lon: 136.88, hub: true },
+            { id: 'mikawaanjo', name: '三河安城', lat: 34.97, lon: 137.06, hub: false },
+            { id: 'toyohashi', name: '豊橋', lat: 34.76, lon: 137.38, hub: false },
+            { id: 'hamamatsu', name: '浜松', lat: 34.70, lon: 137.73, hub: false },
+            { id: 'kakegawa', name: '掛川', lat: 34.77, lon: 138.01, hub: false },
+            { id: 'shizuoka', name: '静岡', lat: 34.97, lon: 138.39, hub: true },
+            { id: 'shinfuji', name: '新富士', lat: 35.14, lon: 138.66, hub: false },
+            { id: 'mishima', name: '三島', lat: 35.12, lon: 138.91, hub: false },
+            { id: 'atami', name: '熱海', lat: 35.10, lon: 139.08, hub: false },
+            { id: 'odawara', name: '小田原', lat: 35.26, lon: 139.16, hub: false },
+            { id: 'shinyokohama', name: '新横浜', lat: 35.51, lon: 139.62, hub: true },
+            { id: 'shinagawa', name: '品川', lat: 35.63, lon: 139.74, hub: false },
+            { id: 'tokyo', name: '東京', lat: 35.68, lon: 139.77, hub: true },
 
-            if (logTerminal.children.length > 30) {
-                logTerminal.removeChild(logTerminal.firstChild);
+            // 東北・北海道新幹線
+            { id: 'ueno', name: '上野', lat: 35.71, lon: 139.77, hub: false },
+            { id: 'omiya', name: '大宮', lat: 35.91, lon: 139.62, hub: true },
+            { id: 'oyama', name: '小山', lat: 36.31, lon: 139.80, hub: false },
+            { id: 'utsunomiya', name: '宇都宮', lat: 36.56, lon: 139.90, hub: false },
+            { id: 'nasushiobara', name: '那須塩原', lat: 36.93, lon: 140.02, hub: false },
+            { id: 'koriyama', name: '郡山', lat: 37.40, lon: 140.39, hub: false },
+            { id: 'fukushima', name: '福島', lat: 37.75, lon: 140.47, hub: false },
+            { id: 'shiroishizao', name: '白石蔵王', lat: 38.00, lon: 140.63, hub: false },
+            { id: 'sendai_t', name: '仙台', lat: 38.26, lon: 140.88, hub: true },
+            { id: 'furukawa', name: '古川', lat: 38.57, lon: 140.96, hub: false },
+            { id: 'kurikoma', name: 'くりこま高原', lat: 38.74, lon: 141.02, hub: false },
+            { id: 'ichinoseki', name: '一関', lat: 38.93, lon: 141.13, hub: false },
+            { id: 'mizusawa', name: '水沢江刺', lat: 39.15, lon: 141.17, hub: false },
+            { id: 'kitakami', name: '北上', lat: 39.28, lon: 141.12, hub: false },
+            { id: 'shinhanamaki', name: '新花巻', lat: 39.40, lon: 141.17, hub: false },
+            { id: 'morioka', name: '盛岡', lat: 39.70, lon: 141.14, hub: true },
+            { id: 'hachinohe', name: '八戸', lat: 40.51, lon: 141.43, hub: false },
+            { id: 'shinaomori', name: '新青森', lat: 40.83, lon: 140.69, hub: true },
+            { id: 'shinhakodate', name: '新函館北斗', lat: 41.90, lon: 140.65, hub: true },
+
+            // 北陸新幹線
+            { id: 'takasaki', name: '高崎', lat: 36.32, lon: 139.01, hub: false },
+            { id: 'karuizawa', name: '軽井沢', lat: 36.34, lon: 138.63, hub: false },
+            { id: 'nagano', name: '長野', lat: 36.64, lon: 138.19, hub: true },
+            { id: 'toyama', name: '富山', lat: 36.70, lon: 137.21, hub: true },
+            { id: 'kanazawa', name: '金沢', lat: 36.58, lon: 136.65, hub: true },
+            { id: 'fukui', name: '福井', lat: 36.06, lon: 136.22, hub: false },
+            { id: 'tsuruga', name: '敦賀', lat: 35.65, lon: 136.05, hub: true }
+        ];
+
+        // 路線接続関係（連続する駅どうしを結ぶ）
+        const connections = [];
+        for (let i = 0; i < stations.length - 1; i++) {
+            // 特殊な接続切り替え箇所以外は順次接続
+            const current = stations[i];
+            const next = stations[i+1];
+
+            // 路線分岐点の接続調整
+            if (current.id === 'tokyo' && next.id === 'ueno') {
+                connections.push([current.id, next.id]); // 東北新幹線へ
+            } else if (current.id === 'omiya' && next.id === 'takasaki') {
+                connections.push([current.id, next.id]); // 北陸新幹線へ
+            } else if (current.id === 'tsuruga' || current.id === 'shinhakodate') {
+                // 終端
+            } else {
+                connections.push([current.id, next.id]);
             }
-        }, 3000);
+        }
 
-        // Canvasマップ描画エンジン
+        // --- 地理座標（Lat/Lon） → マップキャンバス座標変換 ---
+        const mapBaseWidth = 2000;
+        const mapBaseHeight = 1600;
+
+        function geoToCanvas(lat, lon) {
+            const minLon = 129.5, maxLon = 142.5;
+            const minLat = 31.0, maxLat = 42.5;
+
+            const x = (lon - minLon) / (maxLon - minLon) * mapBaseWidth;
+            const y = (1 - (lat - minLat) / (maxLat - minLat)) * mapBaseHeight;
+            return { x, y };
+        }
+
+        // --- ズーム＆パン変数 ---
+        let scale = 1.0;
+        let panX = -200;
+        let panY = -300;
+        let isDragging = false;
+        let startX, startY;
+
         const canvas = document.getElementById('railMap');
         const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('mapWrapper');
 
         function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // 主要ノード (駅位置の抽象座標)
-        const nodes = [
-            { id: 'hakata', name: '博多', x: 0.18, y: 0.75 },
-            { id: 'shinyamaguchi', name: '新山口', x: 0.28, y: 0.70 },
-            { id: 'tokuyama', name: '徳山', x: 0.33, y: 0.68 },
-            { id: 'hiroshima', name: '広島', x: 0.40, y: 0.65 },
-            { id: 'okayama', name: '岡山', x: 0.52, y: 0.60 },
-            { id: 'shinosaka', name: '新大阪', x: 0.63, y: 0.55 },
-            { id: 'nagoya', name: '名古屋', x: 0.73, y: 0.50 },
-            { id: 'tokyo', name: '東京', x: 0.85, y: 0.42 },
-            { id: 'sendai', name: '仙台', x: 0.88, y: 0.28 },
-            { id: 'sapporo', name: '札幌', x: 0.90, y: 0.12 }
-        ];
-
-        // 路線（エッジ）
-        const connections = [
-            ['hakata', 'shinyamaguchi'],
-            ['shinyamaguchi', 'tokuyama'],
-            ['tokuyama', 'hiroshima'],
-            ['hiroshima', 'okayama'],
-            ['okayama', 'shinosaka'],
-            ['shinosaka', 'nagoya'],
-            ['nagoya', 'tokyo'],
-            ['tokyo', 'sendai'],
-            ['sendai', 'sapporo']
-        ];
-
-        // 移動する列車パーティクル
+        // 列車パーティクルデータ
         const trains = [];
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 20; i++) {
             trains.push({
-                segmentIndex: Math.floor(Math.random() * connections.length),
+                connIndex: Math.floor(Math.random() * connections.length),
                 progress: Math.random(),
-                speed: 0.0015 + Math.random() * 0.002,
-                direction: Math.random() > 0.5 ? 1 : -1
+                speed: 0.002 + Math.random() * 0.003
             });
         }
 
+        // --- マップ描画ループ ---
         function drawMap() {
-            const w = canvas.width;
-            const h = canvas.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.clearRect(0, 0, w, h);
+            ctx.save();
+            // ズーム・パン変換適用
+            ctx.translate(panX, panY);
+            ctx.scale(scale, scale);
 
             // 背景グリッド描画
             ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
-            ctx.lineWidth = 1;
-            const gridSize = 40;
-            for (let x = 0; x < w; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, h);
-                ctx.stroke();
+            ctx.lineWidth = 1 / scale;
+            for (let x = 0; x < mapBaseWidth; x += 50) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, mapBaseHeight); ctx.stroke();
             }
-            for (let y = 0; y < h; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(w, y);
-                ctx.stroke();
+            for (let y = 0; y < mapBaseHeight; y += 50) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(mapBaseWidth, y); ctx.stroke();
             }
 
-            // 路線ラインの描画
-            connections.forEach(([startId, endId]) => {
-                const n1 = nodes.find(n => n.id === startId);
-                const n2 = nodes.find(n => n.id === endId);
+            // 路線を描画
+            connections.forEach(([st1Id, st2Id]) => {
+                const s1 = stations.find(s => s.id === st1Id);
+                const s2 = stations.find(s => s.id === st2Id);
+                if (!s1 || !s2) return;
 
-                const x1 = n1.x * w, y1 = n1.y * h;
-                const x2 = n2.x * w, y2 = n2.y * h;
+                const p1 = geoToCanvas(s1.lat, s1.lon);
+                const p2 = geoToCanvas(s2.lat, s2.lon);
 
-                // グローエフェクト
-                ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-                ctx.lineWidth = 4;
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+                ctx.lineWidth = 3 / scale;
                 ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
-
-                // コアライン
-                ctx.strokeStyle = '#00f0ff';
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
                 ctx.stroke();
             });
 
-            // 列車（パーティクル）の更新と描画
+            // リアルタイム走行列車
             trains.forEach(t => {
-                t.progress += t.speed * t.direction;
+                t.progress += t.speed;
                 if (t.progress >= 1) {
                     t.progress = 0;
-                    t.segmentIndex = (t.segmentIndex + 1) % connections.length;
-                } else if (t.progress <= 0) {
-                    t.progress = 1;
-                    t.segmentIndex = (t.segmentIndex - 1 + connections.length) % connections.length;
+                    t.connIndex = (t.connIndex + 1) % connections.length;
                 }
 
-                const [startId, endId] = connections[t.segmentIndex];
-                const n1 = nodes.find(n => n.id === startId);
-                const n2 = nodes.find(n => n.id === endId);
+                const [st1Id, st2Id] = connections[t.connIndex];
+                const s1 = stations.find(s => s.id === st1Id);
+                const s2 = stations.find(s => s.id === st2Id);
+                if (!s1 || !s2) return;
 
-                const tx = (n1.x + (n2.x - n1.x) * t.progress) * w;
-                const ty = (n1.y + (n2.y - n1.y) * t.progress) * h;
+                const p1 = geoToCanvas(s1.lat, s1.lon);
+                const p2 = geoToCanvas(s2.lat, s2.lon);
 
-                // 光る光弾列車
+                const tx = p1.x + (p2.x - p1.x) * t.progress;
+                const ty = p1.y + (p2.y - p1.y) * t.progress;
+
                 ctx.fillStyle = '#00ff88';
                 ctx.shadowColor = '#00ff88';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 8 / scale;
                 ctx.beginPath();
-                ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+                ctx.arc(tx, ty, 4 / scale, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.shadowBlur = 0; // リセット
+                ctx.shadowBlur = 0;
             });
 
-            // 駅ノードの描画
-            nodes.forEach(n => {
-                const nx = n.x * w;
-                const ny = n.y * h;
+            // 駅ノード＆文字描画（LOD：拡大率によって表示調整）
+            stations.forEach(s => {
+                const p = geoToCanvas(s.lat, s.lon);
 
-                ctx.fillStyle = '#0d1527';
-                ctx.strokeStyle = '#00f0ff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(nx, ny, 6, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                // 拡大率が低いときは主要拠点駅(hub)のみラベル表示し、拡大すると全駅表示
+                const showLabel = scale > 1.8 || s.hub;
 
-                // 駅名ラベル
-                ctx.fillStyle = '#f0f6fc';
-                ctx.font = '11px sans-serif';
-                ctx.fillText(n.name, nx + 10, ny + 4);
+                if (showLabel) {
+                    ctx.fillStyle = s.hub ? '#00f0ff' : '#ffffff';
+                    ctx.strokeStyle = '#00f0ff';
+                    ctx.lineWidth = (s.hub ? 2 : 1) / scale;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, (s.hub ? 5 : 3) / scale, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = s.hub ? '#00f0ff' : '#a0aec0';
+                    ctx.font = `${(s.hub ? 12 : 9) / scale}px sans-serif`;
+                    ctx.fillText(s.name, p.x + (8 / scale), p.y + (3 / scale));
+                }
             });
+
+            ctx.restore();
+
+            // UIテキスト更新
+            document.getElementById('zoomInfo').innerText = `SCALE: ${Math.round(scale * 100)}% | POS: (${Math.round(-panX)}, ${Math.round(-panY)})`;
 
             requestAnimationFrame(drawMap);
         }
 
         drawMap();
+
+        // --- マウス操作（ドラッグ＆ズーム）イベント処理 ---
+        wrapper.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        // マウスホイールでのカーソル位置ズーム
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // カーソル位置を中心にズーム
+            const newScale = Math.min(Math.max(scale * zoomFactor, 0.5), 8.0);
+            panX = mouseX - (mouseX - panX) * (newScale / scale);
+            panY = mouseY - (mouseY - panY) * (newScale / scale);
+            scale = newScale;
+        }, { passive: false });
+
+        // 駅クリック判定
+        wrapper.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = (e.clientX - rect.left - panX) / scale;
+            const clickY = (e.clientY - rect.top - panY) / scale;
+
+            stations.forEach(s => {
+                const p = geoToCanvas(s.lat, s.lon);
+                const dist = Math.hypot(p.x - clickX, p.y - clickY);
+                if (dist < 15 / scale) {
+                    selectStation(s);
+                }
+            });
+        });
+
+        function selectStation(st) {
+            document.getElementById('stName').innerText = `${st.name} (${st.id})`;
+            document.getElementById('stWind').innerText = (1.5 + Math.random() * 4.0).toFixed(1) + ' m/s';
+            addLog(`[STATION] ${st.name}駅テレメトリ取得完了 (状態: 正常)`);
+        }
+
+        // 指定地域にフォーカス移動する関数
+        function focusRegion(lon, lat, targetScale = 3.0) {
+            scale = targetScale;
+            const p = geoToCanvas(lat, lon);
+            panX = canvas.width / 2 - p.x * scale;
+            panY = canvas.height / 2 - p.y * scale;
+            addLog(`[MAP] 視点を ${lon.toFixed(1)}°E, ${lat.toFixed(1)}°N にジャンプ`);
+        }
+
+        // コントロールボタン処理
+        document.getElementById('zoomInBtn').onclick = () => { scale = Math.min(scale * 1.3, 8.0); };
+        document.getElementById('zoomOutBtn').onclick = () => { scale = Math.max(scale * 0.7, 0.5); };
+        document.getElementById('zoomResetBtn').onclick = () => {
+            scale = 1.0;
+            panX = -200;
+            panY = -300;
+        };
+
+        // ログ出力
+        const logTerminal = document.getElementById('logTerminal');
+        function addLog(msg) {
+            const time = new Date().toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.innerHTML = `<span class="log-time">[${time}]</span>${msg}`;
+            logTerminal.appendChild(div);
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+        }
+
+        setInterval(() => {
+            const speed = (345 + Math.random() * 20).toFixed(0);
+            document.getElementById('speedVal').innerHTML = `${speed} <span style="font-size: 0.7rem;">km/h</span>`;
+        }, 1200);
+
+        // 初期表示を新山口・徳山エリアに設定
+        focusRegion(131.6, 34.1, 3.2);
     </script>
 </body>
 </html>
