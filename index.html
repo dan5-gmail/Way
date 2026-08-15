@@ -2,31 +2,25 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAPAN RAIL HUB - 全国鉄道統合運行監視システム (Zoom & Station Expanded)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>全新幹線 リアルタイム運行＆接続路線マップ</title>
     <style>
         :root {
-            --bg-color: #080b10;
-            --panel-bg: rgba(15, 23, 36, 0.85);
-            --panel-border: rgba(56, 189, 248, 0.25);
+            --bg-main: #06090e;
+            --panel-bg: rgba(13, 20, 32, 0.94);
+            --border-color: rgba(0, 240, 255, 0.25);
             --accent-cyan: #00f0ff;
             --accent-green: #00ff88;
-            --accent-warn: #ffbb00;
-            --accent-danger: #ff0055;
+            --accent-yellow: #ffcc00;
             --text-main: #f0f6fc;
             --text-sub: #8b949e;
-            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-main);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             height: 100vh;
@@ -36,667 +30,511 @@
         }
 
         header {
-            background: rgba(10, 15, 25, 0.95);
-            border-bottom: 1px solid var(--panel-border);
-            padding: 10px 20px;
+            background: rgba(8, 12, 20, 0.98);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
         }
 
-        .logo-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-logo {
+            width: 14px; height: 14px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            border-radius: 2px;
         }
+        .brand-title { font-size: 1rem; font-weight: 800; letter-spacing: 1px; }
 
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
-        }
-
-        .logo-text {
-            font-size: 1.15rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: linear-gradient(90deg, #fff, var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .status-tag {
             font-family: var(--font-mono);
-            font-size: 0.8rem;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--accent-green);
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            padding: 3px 10px;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
 
-        .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-green);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; transform: scale(1.3); }
-            100% { opacity: 0.4; }
-        }
-
-        .dashboard-container {
+        .app-layout {
             flex: 1;
             display: grid;
-            grid-template-columns: 300px 1fr 340px;
-            gap: 10px;
-            padding: 10px;
-            height: calc(100vh - 52px);
+            grid-template-columns: 260px 1fr 300px;
+            gap: 8px;
+            padding: 8px;
+            height: calc(100vh - 45px);
         }
 
-        .panel {
+        @media (max-width: 900px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+                overflow-y: auto;
+            }
+        }
+
+        .card {
             background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        .panel-header {
-            padding: 10px 14px;
+        .card-header {
+            padding: 8px 12px;
             background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid var(--panel-border);
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            font-weight: bold;
             color: var(--accent-cyan);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .panel-body {
-            padding: 10px;
-            flex: 1;
-            overflow-y: auto;
-        }
+        .card-body { padding: 8px; flex: 1; overflow-y: auto; }
 
-        .line-item {
+        .nav-btn {
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .line-item:hover, .line-item.active {
-            border-color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.08);
-        }
+        .nav-btn:hover { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.1); }
+        .nav-color { width: 4px; height: 24px; border-radius: 2px; }
 
-        .map-wrapper {
+        .map-container {
             position: relative;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #0a1220 0%, #03050a 100%);
+            background: radial-gradient(circle at center, #0a1322 0%, #020408 100%);
             border-radius: 6px;
             overflow: hidden;
             cursor: grab;
         }
+        .map-container:active { cursor: grabbing; }
 
-        .map-wrapper:active {
-            cursor: grabbing;
-        }
+        canvas { width: 100%; height: 100%; display: block; }
 
-        #railMap {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* マップズームコントロール UI */
-        .zoom-controls {
+        .controls {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 16px;
+            right: 16px;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            z-index: 5;
         }
 
-        .zoom-btn {
-            width: 36px;
-            height: 36px;
-            background: rgba(15, 23, 36, 0.85);
-            border: 1px solid var(--panel-border);
+        .btn-ctrl {
+            width: 36px; height: 36px;
+            background: rgba(10, 15, 25, 0.9);
+            border: 1px solid var(--border-color);
             color: var(--accent-cyan);
             font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
-            transition: all 0.2s;
         }
+        .btn-ctrl:hover { background: var(--accent-cyan); color: #000; }
 
-        .zoom-btn:hover {
-            background: var(--accent-cyan);
-            color: #000;
-            box-shadow: 0 0 12px var(--accent-cyan);
-        }
-
-        .zoom-info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(10, 15, 25, 0.8);
-            border: 1px solid var(--panel-border);
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            pointer-events: none;
-        }
-
-        .station-detail-card {
+        .info-panel {
             background: rgba(0, 240, 255, 0.05);
             border: 1px solid var(--accent-cyan);
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
 
-        .gauge-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
+        .transfer-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 2px 2px 2px 0;
         }
 
-        .gauge-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .train-status-box {
+            background: rgba(255, 204, 0, 0.08);
+            border: 1px solid var(--accent-yellow);
             border-radius: 4px;
             padding: 8px;
-            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
         }
 
-        .gauge-val {
-            font-size: 1.2rem;
-            font-weight: bold;
-            font-family: var(--font-mono);
-            color: var(--accent-cyan);
-        }
-
-        .terminal-log {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(0, 240, 255, 0.15);
+        .log-box {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 4px;
             padding: 8px;
             font-family: var(--font-mono);
             font-size: 0.7rem;
-            height: 180px;
+            height: 140px;
             overflow-y: auto;
-            color: #8b949e;
+            color: var(--text-sub);
         }
-
-        .log-entry { margin-bottom: 4px; }
-        .log-time { color: var(--accent-cyan); margin-right: 4px; }
-        .log-tag { color: var(--accent-green); margin-right: 4px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-group">
-            <div class="logo-icon"></div>
-            <div class="logo-text">JAPAN RAIL HUB</div>
+        <div class="brand">
+            <div class="brand-logo"></div>
+            <div class="brand-title">JAPAN SHINKANSEN REAL-TIME MAP</div>
         </div>
-        <div class="system-status">
-            <div>全線監視: <span style="color: var(--accent-green);">全84駅 同期完了</span></div>
-            <div class="status-badge">
-                <div class="pulse-dot"></div>
-                ZOOM & INTERACTIVE ONLINE
-            </div>
-            <div id="clock" style="color: var(--text-sub);">12:00:00 JST</div>
-        </div>
+        <div class="status-tag">REAL-SPEED SIMULATION</div>
     </header>
 
-    <div class="dashboard-container">
-        <!-- 左パネル -->
-        <div class="panel">
-            <div class="panel-header">監視路線一覧</div>
-            <div class="panel-body">
-                <div class="line-item active" onclick="focusRegion(134.5, 34.5, 3.5)">
-                    <div style="font-weight: bold;">山陽新幹線・山口エリア</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub);">徳山 / 新山口 / 厚狭 / 新下関</div>
+    <div class="app-layout">
+        <!-- 路線ショートカット -->
+        <div class="card">
+            <div class="card-header">路線視点ジャンプ</div>
+            <div class="card-body">
+                <div class="nav-btn" onclick="smoothFocus(137.5, 36.5, 1.2)">
+                    <div class="nav-color" style="background: #ffffff;"></div>
+                    <div><div style="font-weight:bold; font-size:0.85rem;">全国マップ</div><div style="font-size:0.7rem; color:var(--text-sub);">全景ビュー</div></div>
                 </div>
-                <div class="line-item" onclick="focusRegion(138.5, 35.3, 2.8)">
-                    <div style="font-weight: bold;">東海道新幹線</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 新大阪</div>
+                <div class="nav-btn" onclick="smoothFocus(135.5, 34.8, 2.3)">
+                    <div class="nav-color" style="background: #00f0ff;"></div>
+                    <div><div style="font-weight:bold; font-size:0.85rem;">東海道・山陽新幹線</div><div style="font-size:0.7rem; color:var(--text-sub);">東京 ⇔ 博多（285km/h）</div></div>
                 </div>
-                <div class="line-item" onclick="focusRegion(140.5, 38.5, 2.0)">
-                    <div style="font-weight: bold;">東北・北海道新幹線</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 新函館北斗</div>
+                <div class="nav-btn" onclick="smoothFocus(140.5, 39.0, 2.2)">
+                    <div class="nav-color" style="background: #00ff88;"></div>
+                    <div><div style="font-weight:bold; font-size:0.85rem;">東北・北海道新幹線</div><div style="font-size:0.7rem; color:var(--text-sub);">東京 ⇔ 新函館北斗（320km/h）</div></div>
                 </div>
-                <div class="line-item" onclick="focusRegion(136.8, 36.5, 3.0)">
-                    <div style="font-weight: bold;">北陸新幹線</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub);">東京 ⇄ 敦賀</div>
+                <div class="nav-btn" onclick="smoothFocus(137.5, 37.0, 2.8)">
+                    <div class="nav-color" style="background: #aa00ff;"></div>
+                    <div><div style="font-weight:bold; font-size:0.85rem;">北陸・上越新幹線</div><div style="font-size:0.7rem; color:var(--text-sub);">東京 ⇔ 敦賀/新潟</div></div>
                 </div>
-                <div class="line-item" onclick="focusRegion(130.5, 32.5, 3.0)">
-                    <div style="font-weight: bold;">九州新幹線</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub);">博多 ⇄ 鹿児島中央</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 中央：Canvasマップ（ズーム・パン対応） -->
-        <div class="panel" style="background: transparent; border: none;">
-            <div class="map-wrapper" id="mapWrapper">
-                <canvas id="railMap"></canvas>
-                
-                <div class="zoom-controls">
-                    <button class="zoom-btn" id="zoomInBtn" title="拡大">+</button>
-                    <button class="zoom-btn" id="zoomOutBtn" title="縮小">−</button>
-                    <button class="zoom-btn" id="zoomResetBtn" style="font-size: 0.8rem;" title="全体表示">↺</button>
-                </div>
-
-                <div class="zoom-info" id="zoomInfo">
-                    SCALE: 100% | DRAG TO MOVE
+                <div class="nav-btn" onclick="smoothFocus(130.5, 32.8, 2.8)">
+                    <div class="nav-color" style="background: #00aaff;"></div>
+                    <div><div style="font-weight:bold; font-size:0.85rem;">九州・西九州新幹線</div><div style="font-size:0.7rem; color:var(--text-sub);">博多 ⇔ 鹿児島/長崎</div></div>
                 </div>
             </div>
         </div>
 
-        <!-- 右パネル：選択駅情報＆テレメトリ -->
-        <div class="panel">
-            <div class="panel-header">駅・車両テレメトリ</div>
-            <div class="panel-body">
-                <div class="station-detail-card" id="stationDetail">
-                    <div style="font-size: 0.75rem; color: var(--accent-cyan);">SELECTED STATION</div>
-                    <div id="stName" style="font-size: 1.3rem; font-weight: bold; margin: 2px 0;">徳山 (Tokuyama)</div>
-                    <div id="stLine" style="font-size: 0.75rem; color: var(--text-sub);">山陽新幹線 / 山陽本線</div>
-                    <div style="margin-top: 8px; font-size: 0.75rem;">
-                        <div>通過限界風速: <span style="color: var(--accent-green);">25.0 m/s</span></div>
-                        <div>現在風速: <span id="stWind" style="color: var(--accent-cyan);">2.4 m/s</span></div>
+        <!-- インタラクティブキャンバス -->
+        <div class="card" style="background: transparent; border: none;">
+            <div class="map-container" id="mapWrapper">
+                <canvas id="mapCanvas"></canvas>
+                <div class="controls">
+                    <button class="btn-ctrl" id="zIn">+</button>
+                    <button class="btn-ctrl" id="zOut">−</button>
+                    <button class="btn-ctrl" id="zReset" style="font-size:0.8rem;">↺</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ステータス ＆ 接続路線表示パネル -->
+        <div class="card">
+            <div class="card-header">駅情報・接続路線 ＆ 車両現在地</div>
+            <div class="card-body">
+                <!-- 駅情報 -->
+                <div class="info-panel">
+                    <div style="font-size: 0.65rem; color: var(--accent-cyan); font-weight: bold;">SELECTED STATION</div>
+                    <div id="stName" style="font-size: 1.2rem; font-weight: bold; margin: 2px 0;">東京</div>
+                    <div id="stLine" style="font-size: 0.7rem; color: var(--text-sub); margin-bottom: 8px;">東海道・山陽 / 東北・北海道・上越・北陸</div>
+                    
+                    <div style="font-size: 0.7rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 4px;">🔗 在来線・私鉄 接続路線</div>
+                    <div id="stTransfers">
+                        <!-- 接続路線タグが動的挿入 -->
                     </div>
                 </div>
 
-                <div class="gauge-container">
-                    <div class="gauge-card">
-                        <div style="font-size: 0.65rem; color: var(--text-sub);">S300/K700 通過速度</div>
-                        <div class="gauge-val" id="speedVal">358 <span style="font-size: 0.7rem;">km/h</span></div>
-                    </div>
-                    <div class="gauge-card">
-                        <div style="font-size: 0.65rem; color: var(--text-sub);">架線電圧</div>
-                        <div class="gauge-val">25.0 <span style="font-size: 0.7rem;">kV</span></div>
-                    </div>
+                <!-- 車両現在地モニター -->
+                <div class="train-status-box">
+                    <div style="color: var(--accent-yellow); font-weight: bold; font-size: 0.7rem; margin-bottom: 4px;">🚄 追跡中の編成 (現在地)</div>
+                    <div id="trainName" style="font-size: 0.9rem; font-weight: bold;">のぞみ 15号 (東京行)</div>
+                    <div id="trainPos" style="color: var(--text-main); font-weight: 500;">現在地: 品川 ➔ 東京 間を走行中</div>
+                    <div id="trainSpeed" style="color: var(--text-sub); font-size: 0.68rem; margin-top: 2px;">巡航速度: 285 km/h</div>
                 </div>
 
-                <div style="font-size: 0.75rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 6px;">
-                    システム・通過センサログ
-                </div>
-                <div class="terminal-log" id="logTerminal"></div>
+                <div style="font-size: 0.75rem; font-weight: bold; margin-bottom: 6px; color: var(--accent-cyan);">運行システムログ</div>
+                <div class="log-box" id="logBox"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 時計
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toTimeString().split(' ')[0] + ' JST';
-        }, 1000);
-
-        // --- 全新幹線 リアル駅データベース ---
+        // 主要駅データ（接続路線データを含む）
         const stations = [
-            // 東海道・山陽・九州新幹線
-            { id: 'kagoshima', name: '鹿児島中央', lat: 31.58, lon: 130.54, hub: true },
-            { id: 'sendai_k', name: '川内', lat: 31.81, lon: 130.30, hub: false },
-            { id: 'izumi', name: '出水', lat: 32.09, lon: 130.35, hub: false },
-            { id: 'shinminamata', name: '新水俣', lat: 32.21, lon: 130.40, hub: false },
-            { id: 'shinyatsushiro', name: '新八代', lat: 32.48, lon: 130.63, hub: false },
-            { id: 'kumamoto', name: '熊本', lat: 32.79, lon: 130.69, hub: true },
-            { id: 'shintamana', name: '新玉名', lat: 32.93, lon: 130.57, hub: false },
-            { id: 'shinomuta', name: '新大牟田', lat: 33.06, lon: 130.49, hub: false },
-            { id: 'chikugo', name: '筑後船小屋', lat: 33.21, lon: 130.51, hub: false },
-            { id: 'kurume', name: '久留米', lat: 33.32, lon: 130.50, hub: false },
-            { id: 'shintosu', name: '新鳥栖', lat: 33.37, lon: 130.50, hub: false },
-            { id: 'hakata', name: '博多', lat: 33.59, lon: 130.42, hub: true },
-            { id: 'kokura', name: '小倉', lat: 33.88, lon: 130.88, hub: true },
-            { id: 'shinshimonoseki', name: '新下関', lat: 34.02, lon: 130.93, hub: false },
-            { id: 'asa', name: '厚狭', lat: 34.05, lon: 131.15, hub: false },
-            { id: 'shinyamaguchi', name: '新山口', lat: 34.09, lon: 131.48, hub: true },
-            { id: 'tokuyama', name: '徳山', lat: 34.05, lon: 131.80, hub: true },
-            { id: 'shiniwakuni', name: '新岩国', lat: 34.13, lon: 132.14, hub: false },
-            { id: 'hiroshima', name: '広島', lat: 34.39, lon: 132.47, hub: true },
-            { id: 'higashihiroshima', name: '東広島', lat: 34.42, lon: 132.74, hub: false },
-            { id: 'mihara', name: '三原', lat: 34.40, lon: 133.08, hub: false },
-            { id: 'shinonomichi', name: '新尾道', lat: 34.43, lon: 133.19, hub: false },
-            { id: 'fukuyama', name: '福山', lat: 34.48, lon: 133.36, hub: false },
-            { id: 'shinkurashiki', name: '新倉敷', lat: 34.56, lon: 133.68, hub: false },
-            { id: 'okayama', name: '岡山', lat: 34.67, lon: 133.92, hub: true },
-            { id: 'aioi', name: '相生', lat: 34.81, lon: 134.46, hub: false },
-            { id: 'himeji', name: '姫路', lat: 34.83, lon: 134.69, hub: false },
-            { id: 'nishiakashi', name: '西明石', lat: 34.67, lon: 134.96, hub: false },
-            { id: 'shinkobe', name: '新神戸', lat: 34.70, lon: 135.19, hub: false },
-            { id: 'shinosaka', name: '新大阪', lat: 34.73, lon: 135.50, hub: true },
-            { id: 'kyoto', name: '京都', lat: 34.98, lon: 135.76, hub: true },
-            { id: 'maibara', name: '米原', lat: 35.31, lon: 136.29, hub: false },
-            { id: 'gifuhashima', name: '岐阜羽島', lat: 35.32, lon: 136.70, hub: false },
-            { id: 'nagoya', name: '名古屋', lat: 35.17, lon: 136.88, hub: true },
-            { id: 'mikawaanjo', name: '三河安城', lat: 34.97, lon: 137.06, hub: false },
-            { id: 'toyohashi', name: '豊橋', lat: 34.76, lon: 137.38, hub: false },
-            { id: 'hamamatsu', name: '浜松', lat: 34.70, lon: 137.73, hub: false },
-            { id: 'kakegawa', name: '掛川', lat: 34.77, lon: 138.01, hub: false },
-            { id: 'shizuoka', name: '静岡', lat: 34.97, lon: 138.39, hub: true },
-            { id: 'shinfuji', name: '新富士', lat: 35.14, lon: 138.66, hub: false },
-            { id: 'mishima', name: '三島', lat: 35.12, lon: 138.91, hub: false },
-            { id: 'atami', name: '熱海', lat: 35.10, lon: 139.08, hub: false },
-            { id: 'odawara', name: '小田原', lat: 35.26, lon: 139.16, hub: false },
-            { id: 'shinyokohama', name: '新横浜', lat: 35.51, lon: 139.62, hub: true },
-            { id: 'shinagawa', name: '品川', lat: 35.63, lon: 139.74, hub: false },
-            { id: 'tokyo', name: '東京', lat: 35.68, lon: 139.77, hub: true },
-
-            // 東北・北海道新幹線
-            { id: 'ueno', name: '上野', lat: 35.71, lon: 139.77, hub: false },
-            { id: 'omiya', name: '大宮', lat: 35.91, lon: 139.62, hub: true },
-            { id: 'oyama', name: '小山', lat: 36.31, lon: 139.80, hub: false },
-            { id: 'utsunomiya', name: '宇都宮', lat: 36.56, lon: 139.90, hub: false },
-            { id: 'nasushiobara', name: '那須塩原', lat: 36.93, lon: 140.02, hub: false },
-            { id: 'koriyama', name: '郡山', lat: 37.40, lon: 140.39, hub: false },
-            { id: 'fukushima', name: '福島', lat: 37.75, lon: 140.47, hub: false },
-            { id: 'shiroishizao', name: '白石蔵王', lat: 38.00, lon: 140.63, hub: false },
-            { id: 'sendai_t', name: '仙台', lat: 38.26, lon: 140.88, hub: true },
-            { id: 'furukawa', name: '古川', lat: 38.57, lon: 140.96, hub: false },
-            { id: 'kurikoma', name: 'くりこま高原', lat: 38.74, lon: 141.02, hub: false },
-            { id: 'ichinoseki', name: '一関', lat: 38.93, lon: 141.13, hub: false },
-            { id: 'mizusawa', name: '水沢江刺', lat: 39.15, lon: 141.17, hub: false },
-            { id: 'kitakami', name: '北上', lat: 39.28, lon: 141.12, hub: false },
-            { id: 'shinhanamaki', name: '新花巻', lat: 39.40, lon: 141.17, hub: false },
-            { id: 'morioka', name: '盛岡', lat: 39.70, lon: 141.14, hub: true },
-            { id: 'hachinohe', name: '八戸', lat: 40.51, lon: 141.43, hub: false },
-            { id: 'shinaomori', name: '新青森', lat: 40.83, lon: 140.69, hub: true },
-            { id: 'shinhakodate', name: '新函館北斗', lat: 41.90, lon: 140.65, hub: true },
-
-            // 北陸新幹線
-            { id: 'takasaki', name: '高崎', lat: 36.32, lon: 139.01, hub: false },
-            { id: 'karuizawa', name: '軽井沢', lat: 36.34, lon: 138.63, hub: false },
-            { id: 'nagano', name: '長野', lat: 36.64, lon: 138.19, hub: true },
-            { id: 'toyama', name: '富山', lat: 36.70, lon: 137.21, hub: true },
-            { id: 'kanazawa', name: '金沢', lat: 36.58, lon: 136.65, hub: true },
-            { id: 'fukui', name: '福井', lat: 36.06, lon: 136.22, hub: false },
-            { id: 'tsuruga', name: '敦賀', lat: 35.65, lon: 136.05, hub: true }
+            // 東海道・山陽
+            { id: 'tokyo', name: '東京', lat: 35.681, lon: 139.767, hub: true, transfers: ['JR山手線', 'JR京浜東北線', 'JR中央線', 'JR東海道線', 'JR横須賀線', '東京メトロ丸ノ内線'] },
+            { id: 'shinagawa', name: '品川', lat: 35.628, lon: 139.739, transfers: ['JR山手線', 'JR京浜東北線', 'JR東海道線', '京急本線'] },
+            { id: 'shinyokohama', name: '新横浜', lat: 35.507, lon: 139.617, hub: true, transfers: ['JR横浜線', '相鉄・東急新横浜線', '横浜市営地下鉄ブルーライン'] },
+            { id: 'odawara', name: '小田原', lat: 35.256, lon: 139.155, transfers: ['JR東海道線', '小田急小田原線', '箱根登山電車', '伊豆箱根鉄道大雄山線'] },
+            { id: 'atami', name: '熱海', lat: 35.103, lon: 139.078, transfers: ['JR東海道線', 'JR伊東線'] },
+            { id: 'mishima', name: '三島', lat: 35.127, lon: 138.911, transfers: ['JR東海道線', '伊豆箱根鉄道駿豆線'] },
+            { id: 'shinfuji', name: '新富士', lat: 35.142, lon: 138.663, transfers: ['バス連絡（富士駅方面）'] },
+            { id: 'shizuoka', name: '静岡', lat: 34.972, lon: 138.389, hub: true, transfers: ['JR東海道線', '静岡鉄道（新静岡駅）'] },
+            { id: 'kakegawa', name: '掛川', lat: 34.769, lon: 138.014, transfers: ['JR東海道線', '天竜浜名湖鉄道'] },
+            { id: 'hamamatsu', name: '浜松', lat: 34.704, lon: 137.734, transfers: ['JR東海道線', '遠州鉄道（新浜松駅）'] },
+            { id: 'toyohashi', name: '豊橋', lat: 34.763, lon: 137.382, transfers: ['JR東海道線', 'JR飯田線', '名鉄名古屋本線', '豊橋鉄道市内線・渥美線'] },
+            { id: 'mikawaanjo', name: '三河安城', lat: 34.969, lon: 137.061, transfers: ['JR東海道線'] },
+            { id: 'nagoya', name: '名古屋', lat: 35.171, lon: 136.882, hub: true, transfers: ['JR東海道線', 'JR中央線', 'JR関西線', '名鉄名古屋本線', '近鉄名古屋線', '地下鉄東山線・桜通線', 'あおなみ線'] },
+            { id: 'gifuhashima', name: '岐阜羽島', lat: 35.316, lon: 136.698, transfers: ['名鉄羽島線（新羽島駅）'] },
+            { id: 'maibara', name: '米原', lat: 35.315, lon: 136.290, transfers: ['JR東海道線', 'JR北陸本線', '近江鉄道本線'] },
+            { id: 'kyoto', name: '京都', lat: 34.985, lon: 135.758, hub: true, transfers: ['JR京都線', 'JR奈良線', 'JR嵯峨野線', '近鉄京都線', '京都市営地下鉄烏丸線'] },
+            { id: 'shinosaka', name: '新大阪', lat: 34.733, lon: 135.500, hub: true, transfers: ['JR京都線', 'JRおおさか東線', 'Osaka Metro御堂筋線'] },
+            { id: 'shinkobe', name: '新神戸', lat: 34.705, lon: 135.195, transfers: ['神戸市営地下鉄西神・山手線・北神線', '神戸布引ロープウェイ'] },
+            { id: 'nishiakashi', name: '西明石', lat: 34.666, lon: 134.960, transfers: ['JR神戸線'] },
+            { id: 'himeji', name: '姫路', lat: 34.827, lon: 134.690, transfers: ['JR神戸線', 'JR山陽本線', 'JR播但線', 'JR姫新線', '山陽電車（山陽姫路駅）'] },
+            { id: 'aioi', name: '相生', lat: 34.811, lon: 134.474, transfers: ['JR山陽本線', 'JR赤穂線'] },
+            { id: 'okayama', name: '岡山', lat: 34.666, lon: 133.918, hub: true, transfers: ['JR山陽本線', 'JR瀬戸大橋線', 'JR伯備線', 'JR津山線', 'JR吉備線', '岡山電気軌道'] },
+            { id: 'shinkurashiki', name: '新倉敷', lat: 34.564, lon: 133.682, transfers: ['JR山陽本線'] },
+            { id: 'fukuyama', name: '福山', lat: 34.489, lon: 133.361, transfers: ['JR山陽本線', 'JR福塩線'] },
+            { id: 'shinonomichi', name: '新尾道', lat: 34.430, lon: 133.193, transfers: ['おのみちバス'] },
+            { id: 'mihara', name: '三原', lat: 34.400, lon: 133.084, transfers: ['JR山陽本線', 'JR呉線'] },
+            { id: 'higashihiroshima', name: '東広島', lat: 34.417, lon: 132.742, transfers: ['路線バス（西条駅方面）'] },
+            { id: 'hiroshima', name: '広島', lat: 34.397, lon: 132.475, hub: true, transfers: ['JR山陽本線', 'JR呉線', 'JR可部線', 'JR芸備線', '広島電鉄'] },
+            { id: 'shiniwakuni', name: '新岩国', lat: 34.134, lon: 132.141, transfers: ['錦川鉄道清流線（清流新岩国駅）'] },
+            { id: 'tokuyama', name: '徳山', lat: 34.053, lon: 131.803, hub: true, transfers: ['JR山陽本線', 'JR岩徳線'] },
+            { id: 'shinyamaguchi', name: '新山口', lat: 34.092, lon: 131.480, hub: true, transfers: ['JR山陽本線', 'JR山口線', 'JR宇部線'] },
+            { id: 'asa', name: '厚狭', lat: 34.053, lon: 131.158, transfers: ['JR山陽本線', 'JR美祢線'] },
+            { id: 'shinshimonoseki', name: '新下関', lat: 34.015, lon: 130.932, transfers: ['JR山陽本線'] },
+            { id: 'kokura', name: '小倉', lat: 33.887, lon: 130.882, hub: true, transfers: ['JR鹿児島本線', 'JR日豊本線', '北九州モノレール'] },
+            { id: 'hakata', name: '博多', lat: 33.590, lon: 130.421, hub: true, transfers: ['JR鹿児島本線', 'JR福北ゆたか線', '福岡市地下鉄空港線・七隈線'] },
+            // 九州
+            { id: 'kumamoto', name: '熊本', lat: 32.789, lon: 130.688, hub: true, transfers: ['JR鹿児島本線', 'JR豊肥本線', '熊本市電'] },
+            { id: 'kagoshima', name: '鹿児島中央', lat: 31.584, lon: 130.541, hub: true, transfers: ['JR鹿児島本線', 'JR日豊本線', 'JR指宿枕崎線', '鹿児島市電'] },
+            { id: 'nagasaki', name: '長崎', lat: 32.753, lon: 129.871, hub: true, transfers: ['JR長崎本線', '長崎電気軌道'] },
+            // 東北・北海道・上越・北陸
+            { id: 'omiya', name: '大宮', lat: 35.906, lon: 139.624, hub: true, transfers: ['JR京浜東北線', 'JR埼京線', 'JR宇都宮線', 'JR高崎線', '東武野田線', 'ニューシャトル'] },
+            { id: 'sendai_t', name: '仙台', lat: 38.260, lon: 140.882, hub: true, transfers: ['JR東北本線', 'JR仙山線', 'JR仙石線', '仙台市地下鉄南北線・東西線'] },
+            { id: 'morioka', name: '盛岡', lat: 39.701, lon: 141.137, hub: true, transfers: ['JR東北本線', 'JR山田線', 'JR田沢湖線', 'IGRいわて銀河鉄道'] },
+            { id: 'shinaomori', name: '新青森', lat: 40.828, lon: 140.693, hub: true, transfers: ['JR奥羽本線'] },
+            { id: 'shinhakodate', name: '新函館北斗', lat: 41.905, lon: 140.648, hub: true, transfers: ['JR函館本線（はこだてライナー）'] },
+            { id: 'yamagata', name: '山形', lat: 38.248, lon: 140.328, hub: true, transfers: ['JR奥羽本線', 'JR仙山線', 'JR左沢線'] },
+            { id: 'akita', name: '秋田', lat: 39.717, lon: 140.129, hub: true, transfers: ['JR奥羽本線', 'JR男鹿線', 'JR羽越本線'] },
+            { id: 'takasaki', name: '高崎', lat: 36.322, lon: 139.013, hub: true, transfers: ['JR高崎線', 'JR上越線', 'JR両毛線', 'JR八高線', '上信電鉄'] },
+            { id: 'niigata', name: '新潟', lat: 37.912, lon: 139.062, hub: true, transfers: ['JR信越本線', 'JR白新線', 'JR越後線'] },
+            { id: 'nagano', name: '長野', lat: 36.643, lon: 138.189, hub: true, transfers: ['JR信越本線', 'JR飯山線', 'しなの鉄道', '長野電鉄'] },
+            { id: 'toyama', name: '富山', lat: 36.701, lon: 137.213, hub: true, transfers: ['あいの風とやま鉄道', 'JR高山本線', '富山地方鉄道'] },
+            { id: 'kanazawa', name: '金沢', lat: 36.578, lon: 136.648, hub: true, transfers: ['IRいしかわ鉄道', 'JR七尾線', '北陸鉄道浅野川線'] },
+            { id: 'fukui', name: '福井', lat: 36.061, lon: 136.222, hub: true, transfers: ['ハピラインふくい', 'JR越美北線', 'えちぜん鉄道', '福井鉄道'] },
+            { id: 'tsuruga', name: '敦賀', lat: 35.645, lon: 136.056, hub: true, transfers: ['ハピラインふくい', 'JR北陸本線', 'JR小浜線'] }
         ];
 
-        // 路線接続関係（連続する駅どうしを結ぶ）
-        const connections = [];
-        for (let i = 0; i < stations.length - 1; i++) {
-            // 特殊な接続切り替え箇所以外は順次接続
-            const current = stations[i];
-            const next = stations[i+1];
+        // 路線データ
+        const lines = [
+            { name: '東海道・山陽新幹線', color: '#00f0ff', path: ['tokyo','shinagawa','shinyokohama','odawara','atami','mishima','shinfuji','shizuoka','kakegawa','hamamatsu','toyohashi','mikawaanjo','nagoya','gifuhashima','maibara','kyoto','shinosaka','shinkobe','nishiakashi','himeji','aioi','okayama','shinkurashiki','fukuyama','shinonomichi','mihara','higashihiroshima','hiroshima','shiniwakuni','tokuyama','shinyamaguchi','asa','shinshimonoseki','kokura','hakata'] },
+            { name: '九州新幹線', color: '#00aaff', path: ['hakata','kumamoto','kagoshima'] },
+            { name: '東北・北海道新幹線', color: '#00ff88', path: ['tokyo','omiya','sendai_t','morioka','shinaomori','shinhakodate'] },
+            { name: '山形・秋田新幹線', color: '#ff00d4', path: ['sendai_t','yamagata','morioka','akita'] },
+            { name: '北陸・上越新幹線', color: '#aa00ff', path: ['tokyo','takasaki','nagano','toyama','kanazawa','fukui','tsuruga'] }
+        ];
 
-            // 路線分岐点の接続調整
-            if (current.id === 'tokyo' && next.id === 'ueno') {
-                connections.push([current.id, next.id]); // 東北新幹線へ
-            } else if (current.id === 'omiya' && next.id === 'takasaki') {
-                connections.push([current.id, next.id]); // 北陸新幹線へ
-            } else if (current.id === 'tsuruga' || current.id === 'shinhakodate') {
-                // 終端
-            } else {
-                connections.push([current.id, next.id]);
-            }
-        }
+        // リアルタイムシミュレーション編成（現実的な速度で線路上を移動）
+        const activeTrains = [
+            { id: 'nozomi_up', name: 'のぞみ 12号 (東京行)', lineIdx: 0, progress: 0.15, speed: 0.0003, color: '#ffcc00' },
+            { id: 'nozomi_down', name: 'のぞみ 31号 (博多行)', lineIdx: 0, progress: 0.72, speed: -0.00028, color: '#ff9900' },
+            { id: 'hayabusa', name: 'はやぶさ 17号 (新函館北斗行)', lineIdx: 2, progress: 0.40, speed: 0.00035, color: '#00ffcc' },
+            { id: 'kagayaki', name: 'かがやき 508号 (東京行)', lineIdx: 4, progress: 0.60, speed: -0.00025, color: '#e066ff' }
+        ];
 
-        // --- 地理座標（Lat/Lon） → マップキャンバス座標変換 ---
-        const mapBaseWidth = 2000;
-        const mapBaseHeight = 1600;
-
-        function geoToCanvas(lat, lon) {
-            const minLon = 129.5, maxLon = 142.5;
-            const minLat = 31.0, maxLat = 42.5;
-
-            const x = (lon - minLon) / (maxLon - minLon) * mapBaseWidth;
-            const y = (1 - (lat - minLat) / (maxLat - minLat)) * mapBaseHeight;
-            return { x, y };
-        }
-
-        // --- ズーム＆パン変数 ---
-        let scale = 1.0;
-        let panX = -200;
-        let panY = -300;
-        let isDragging = false;
-        let startX, startY;
-
-        const canvas = document.getElementById('railMap');
+        const canvas = document.getElementById('mapCanvas');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('mapWrapper');
 
-        function resizeCanvas() {
+        // カメラパラメータ（スムーズ移動用ラープ処理）
+        let currentScale = 1.2, targetScale = 1.2;
+        let currentPanX = -250, targetPanX = -250;
+        let currentPanY = -200, targetPanY = -200;
+        let isDrag = false, sX, sY;
+
+        function resize() {
             canvas.width = wrapper.clientWidth;
             canvas.height = wrapper.clientHeight;
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        window.addEventListener('resize', resize);
+        resize();
 
-        // 列車パーティクルデータ
-        const trains = [];
-        for (let i = 0; i < 20; i++) {
-            trains.push({
-                connIndex: Math.floor(Math.random() * connections.length),
-                progress: Math.random(),
-                speed: 0.002 + Math.random() * 0.003
-            });
+        function geoToXY(lat, lon) {
+            const x = (lon - 128.5) / (142.5 - 128.5) * 2200;
+            const y = (1 - (lat - 30.5) / (42.8 - 30.5)) * 1600;
+            return { x, y };
         }
 
-        // --- マップ描画ループ ---
-        function drawMap() {
+        // 路線上の補間座標を取得
+        function getLinePos(linePath, progress) {
+            const totalSegs = linePath.length - 1;
+            const globalPos = Math.max(0, Math.min(1, progress)) * totalSegs;
+            const segIndex = Math.min(Math.floor(globalPos), totalSegs - 1);
+            const segRatio = globalPos - segIndex;
+
+            const s1 = stations.find(s => s.id === linePath[segIndex]);
+            const s2 = stations.find(s => s.id === linePath[segIndex + 1]);
+
+            if (!s1 || !s2) return { x: 0, y: 0, s1Name: '不明', s2Name: '不明' };
+
+            const p1 = geoToXY(s1.lat, s1.lon);
+            const p2 = geoToXY(s2.lat, s2.lon);
+
+            return {
+                x: p1.x + (p2.x - p1.x) * segRatio,
+                y: p1.y + (p2.y - p1.y) * segRatio,
+                s1Name: s1.name,
+                s2Name: s2.name,
+                ratio: segRatio
+            };
+        }
+
+        // メイン描画・更新ループ
+        function render() {
+            // カメラのなめらか移動 (Lerp)
+            currentScale += (targetScale - currentScale) * 0.08;
+            currentPanX += (targetPanX - currentPanX) * 0.08;
+            currentPanY += (targetPanY - currentPanY) * 0.08;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             ctx.save();
-            // ズーム・パン変換適用
-            ctx.translate(panX, panY);
-            ctx.scale(scale, scale);
+            ctx.translate(currentPanX, currentPanY);
+            ctx.scale(currentScale, currentScale);
 
-            // 背景グリッド描画
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
-            ctx.lineWidth = 1 / scale;
-            for (let x = 0; x < mapBaseWidth; x += 50) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, mapBaseHeight); ctx.stroke();
-            }
-            for (let y = 0; y < mapBaseHeight; y += 50) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(mapBaseWidth, y); ctx.stroke();
-            }
-
-            // 路線を描画
-            connections.forEach(([st1Id, st2Id]) => {
-                const s1 = stations.find(s => s.id === st1Id);
-                const s2 = stations.find(s => s.id === st2Id);
-                if (!s1 || !s2) return;
-
-                const p1 = geoToCanvas(s1.lat, s1.lon);
-                const p2 = geoToCanvas(s2.lat, s2.lon);
-
-                ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
-                ctx.lineWidth = 3 / scale;
+            // 1. 路線を描画
+            lines.forEach(l => {
+                ctx.strokeStyle = l.color;
+                ctx.lineWidth = 3.5 / currentScale;
                 ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, p2.y);
+                for(let i=0; i<l.path.length-1; i++) {
+                    const s1 = stations.find(s=>s.id===l.path[i]);
+                    const s2 = stations.find(s=>s.id===l.path[i+1]);
+                    if(s1 && s2) {
+                        const p1 = geoToXY(s1.lat, s1.lon);
+                        const p2 = geoToXY(s2.lat, s2.lon);
+                        ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+                    }
+                }
                 ctx.stroke();
             });
 
-            // リアルタイム走行列車
-            trains.forEach(t => {
-                t.progress += t.speed;
-                if (t.progress >= 1) {
-                    t.progress = 0;
-                    t.connIndex = (t.connIndex + 1) % connections.length;
+            // 2. 駅を描画
+            stations.forEach(s => {
+                const p = geoToXY(s.lat, s.lon);
+                const vis = currentScale > 1.8 || s.hub;
+                if(vis) {
+                    ctx.fillStyle = s.hub ? '#00f0ff' : '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, (s.hub ? 4 : 2) / currentScale, 0, Math.PI*2);
+                    ctx.fill();
+
+                    ctx.fillStyle = s.hub ? '#00f0ff' : '#8b949e';
+                    ctx.font = `${(s.hub ? 11 : 8.5) / currentScale}px sans-serif`;
+                    ctx.fillText(s.name, p.x + 5/currentScale, p.y + 3/currentScale);
                 }
-
-                const [st1Id, st2Id] = connections[t.connIndex];
-                const s1 = stations.find(s => s.id === st1Id);
-                const s2 = stations.find(s => s.id === st2Id);
-                if (!s1 || !s2) return;
-
-                const p1 = geoToCanvas(s1.lat, s1.lon);
-                const p2 = geoToCanvas(s2.lat, s2.lon);
-
-                const tx = p1.x + (p2.x - p1.x) * t.progress;
-                const ty = p1.y + (p2.y - p1.y) * t.progress;
-
-                ctx.fillStyle = '#00ff88';
-                ctx.shadowColor = '#00ff88';
-                ctx.shadowBlur = 8 / scale;
-                ctx.beginPath();
-                ctx.arc(tx, ty, 4 / scale, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
             });
 
-            // 駅ノード＆文字描画（LOD：拡大率によって表示調整）
-            stations.forEach(s => {
-                const p = geoToCanvas(s.lat, s.lon);
+            // 3. 走行中の車両を描画・位置更新
+            activeTrains.forEach((train, idx) => {
+                train.progress += train.speed;
+                if(train.progress > 1.0) train.progress = 0.0;
+                if(train.progress < 0.0) train.progress = 1.0;
 
-                // 拡大率が低いときは主要拠点駅(hub)のみラベル表示し、拡大すると全駅表示
-                const showLabel = scale > 1.8 || s.hub;
+                const line = lines[train.lineIdx];
+                const pos = getLinePos(line.path, train.progress);
 
-                if (showLabel) {
-                    ctx.fillStyle = s.hub ? '#00f0ff' : '#ffffff';
-                    ctx.strokeStyle = '#00f0ff';
-                    ctx.lineWidth = (s.hub ? 2 : 1) / scale;
+                // 光る列車アイコン
+                ctx.fillStyle = train.color;
+                ctx.shadowColor = train.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 5 / currentScale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // リセット
 
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, (s.hub ? 5 : 3) / scale, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.fillStyle = s.hub ? '#00f0ff' : '#a0aec0';
-                    ctx.font = `${(s.hub ? 12 : 9) / scale}px sans-serif`;
-                    ctx.fillText(s.name, p.x + (8 / scale), p.y + (3 / scale));
+                // 追跡車両（1番目）の現在地をパネルにリアルタイム表示
+                if(idx === 0) {
+                    document.getElementById('trainName').innerText = train.name;
+                    document.getElementById('trainPos').innerText = `現在地: ${pos.s1Name} ➔ ${pos.s2Name} 間`;
                 }
             });
 
             ctx.restore();
+            requestAnimationFrame(render);
+        }
+        render();
 
-            // UIテキスト更新
-            document.getElementById('zoomInfo').innerText = `SCALE: ${Math.round(scale * 100)}% | POS: (${Math.round(-panX)}, ${Math.round(-panY)})`;
+        // 駅選択・接続路線更新関数
+        function selectStation(st) {
+            document.getElementById('stName').innerText = st.name;
+            
+            // 接続路線タグの生成
+            const container = document.getElementById('stTransfers');
+            container.innerHTML = '';
+            
+            if (st.transfers && st.transfers.length > 0) {
+                st.transfers.forEach(t => {
+                    const tag = document.createElement('span');
+                    tag.className = 'transfer-tag';
+                    tag.innerText = t;
+                    container.appendChild(tag);
+                });
+            } else {
+                container.innerHTML = '<span style="font-size:0.7rem; color:var(--text-sub);">接続路線なし（単独駅）</span>';
+            }
 
-            requestAnimationFrame(drawMap);
+            log(`選択駅: ${st.name} (接続路線: ${st.transfers ? st.transfers.length : 0}路線)`);
         }
 
-        drawMap();
+        // カメラのスムーズ移動
+        function smoothFocus(lon, lat, scaleVal = 2.5) {
+            targetScale = scaleVal;
+            const p = geoToXY(lat, lon);
+            targetPanX = canvas.width / 2 - p.x * targetScale;
+            targetPanY = canvas.height / 2 - p.y * targetScale;
+        }
 
-        // --- マウス操作（ドラッグ＆ズーム）イベント処理 ---
-        wrapper.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
-            isDragging = true;
-            startX = e.clientX - panX;
-            startY = e.clientY - panY;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            panX = e.clientX - startX;
-            panY = e.clientY - startY;
-        });
-
-        window.addEventListener('mouseup', () => { isDragging = false; });
-
-        // マウスホイールでのカーソル位置ズーム
-        wrapper.addEventListener('wheel', (e) => {
+        // ドラッグ＆ズーム操作
+        wrapper.addEventListener('mousedown', e => { isDrag = true; sX = e.clientX - targetPanX; sY = e.clientY - targetPanY; });
+        window.addEventListener('mousemove', e => { if(isDrag) { targetPanX = e.clientX - sX; targetPanY = e.clientY - sY; } });
+        window.addEventListener('mouseup', () => isDrag = false);
+        wrapper.addEventListener('wheel', e => {
             e.preventDefault();
-            const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
-            
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            // カーソル位置を中心にズーム
-            const newScale = Math.min(Math.max(scale * zoomFactor, 0.5), 8.0);
-            panX = mouseX - (mouseX - panX) * (newScale / scale);
-            panY = mouseY - (mouseY - panY) * (newScale / scale);
-            scale = newScale;
+            const z = e.deltaY < 0 ? 1.15 : 0.85;
+            targetScale = Math.min(Math.max(targetScale * z, 0.4), 8.0);
         }, { passive: false });
 
-        // 駅クリック判定
-        wrapper.addEventListener('click', (e) => {
+        // 駅判定クリック
+        wrapper.addEventListener('click', e => {
             const rect = canvas.getBoundingClientRect();
-            const clickX = (e.clientX - rect.left - panX) / scale;
-            const clickY = (e.clientY - rect.top - panY) / scale;
-
+            const cx = (e.clientX - rect.left - currentPanX) / currentScale;
+            const cy = (e.clientY - rect.top - currentPanY) / currentScale;
             stations.forEach(s => {
-                const p = geoToCanvas(s.lat, s.lon);
-                const dist = Math.hypot(p.x - clickX, p.y - clickY);
-                if (dist < 15 / scale) {
+                const p = geoToXY(s.lat, s.lon);
+                if(Math.hypot(p.x - cx, p.y - cy) < 14 / currentScale) {
                     selectStation(s);
                 }
             });
         });
 
-        function selectStation(st) {
-            document.getElementById('stName').innerText = `${st.name} (${st.id})`;
-            document.getElementById('stWind').innerText = (1.5 + Math.random() * 4.0).toFixed(1) + ' m/s';
-            addLog(`[STATION] ${st.name}駅テレメトリ取得完了 (状態: 正常)`);
+        // コントローラーボタン
+        document.getElementById('zIn').onclick = () => targetScale = Math.min(targetScale * 1.3, 8.0);
+        document.getElementById('zOut').onclick = () => targetScale = Math.max(targetScale * 0.7, 0.4);
+        document.getElementById('zReset').onclick = () => smoothFocus(137.5, 36.5, 1.2);
+
+        function log(msg) {
+            const b = document.getElementById('logBox');
+            b.innerHTML += `<div>[${new Date().toTimeString().split(' ')[0]}] ${msg}</div>`;
+            b.scrollTop = b.scrollHeight;
         }
 
-        // 指定地域にフォーカス移動する関数
-        function focusRegion(lon, lat, targetScale = 3.0) {
-            scale = targetScale;
-            const p = geoToCanvas(lat, lon);
-            panX = canvas.width / 2 - p.x * scale;
-            panY = canvas.height / 2 - p.y * scale;
-            addLog(`[MAP] 視点を ${lon.toFixed(1)}°E, ${lat.toFixed(1)}°N にジャンプ`);
-        }
-
-        // コントロールボタン処理
-        document.getElementById('zoomInBtn').onclick = () => { scale = Math.min(scale * 1.3, 8.0); };
-        document.getElementById('zoomOutBtn').onclick = () => { scale = Math.max(scale * 0.7, 0.5); };
-        document.getElementById('zoomResetBtn').onclick = () => {
-            scale = 1.0;
-            panX = -200;
-            panY = -300;
-        };
-
-        // ログ出力
-        const logTerminal = document.getElementById('logTerminal');
-        function addLog(msg) {
-            const time = new Date().toTimeString().split(' ')[0];
-            const div = document.createElement('div');
-            div.className = 'log-entry';
-            div.innerHTML = `<span class="log-time">[${time}]</span>${msg}`;
-            logTerminal.appendChild(div);
-            logTerminal.scrollTop = logTerminal.scrollHeight;
-        }
-
-        setInterval(() => {
-            const speed = (345 + Math.random() * 20).toFixed(0);
-            document.getElementById('speedVal').innerHTML = `${speed} <span style="font-size: 0.7rem;">km/h</span>`;
-        }, 1200);
-
-        // 初期表示を新山口・徳山エリアに設定
-        focusRegion(131.6, 34.1, 3.2);
+        // 初期化（東京駅を選択状態に）
+        selectStation(stations[0]);
+        smoothFocus(137.5, 36.5, 1.2);
     </script>
 </body>
 </html>
