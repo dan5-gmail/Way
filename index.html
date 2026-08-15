@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAPAN RAIL HUB - 全国鉄道統合運行監視システム</title>
+    <style>
+        :root {
+            --bg-color: #080b10;
+            --panel-bg: rgba(15, 23, 36, 0.75);
+            --panel-border: rgba(56, 189, 248, 0.2);
+            --accent-cyan: #00f0ff;
+            --accent-green: #00ff88;
+            --accent-warn: #ffbb00;
+            --accent-danger: #ff0055;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ヘッダー */
+        header {
+            background: rgba(10, 15, 25, 0.9);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.05);
+            z-index: 10;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; }
+        }
+
+        /* メインコンテナ */
+        .dashboard-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr 360px;
+            gap: 12px;
+            padding: 12px;
+            height: calc(100vh - 60px);
+        }
+
+        /* 共通パネルスタイル */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--panel-border);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-body {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* 左パネル：路線一覧 */
+        .line-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .line-item:hover, .line-item.active {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .line-title {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .line-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-family: var(--font-mono);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-cyan);
+            width: 100%;
+            transition: width 0.5s ease;
+        }
+
+        /* 中央：Canvasレーダーマップ */
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #0d1527 0%, #050811 100%);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #railMap {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background: rgba(15, 23, 36, 0.8);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+
+        .btn:hover, .btn.active {
+            background: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 0 12px var(--accent-cyan);
+        }
+
+        /* 右パネル：テレメトリ＆ログ */
+        .gauge-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .gauge-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .gauge-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            margin: 4px 0;
+        }
+
+        .gauge-label {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+        }
+
+        .terminal-log {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            height: 220px;
+            overflow-y: auto;
+            color: #a0aec0;
+        }
+
+        .log-entry {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            color: var(--accent-cyan);
+            margin-right: 6px;
+        }
+
+        .log-tag {
+            color: var(--accent-green);
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon"></div>
+            <div class="logo-text">JAPAN RAIL HUB</div>
+        </div>
+        <div class="system-status">
+            <div>全国運行率: <span style="color: var(--accent-green); font-weight: bold;">99.8%</span></div>
+            <div>監視車両数: <span style="color: var(--accent-cyan); font-weight: bold;">1,420編成</span></div>
+            <div class="status-badge">
+                <div class="pulse-dot"></div>
+                SYSTEM ONLINE
+            </div>
+            <div id="clock" style="color: var(--text-sub);">12:00:00 JST</div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- 左パネル：主要路線ステータス -->
+        <div class="panel">
+            <div class="panel-header">
+                主要路線リアルタイム監視
+                <span style="font-size: 0.7rem; color: var(--text-sub);">LIVE</span>
+            </div>
+            <div class="panel-body">
+                <div class="line-item active">
+                    <div class="line-title">
+                        <span>東海道・山陽新幹線</span>
+                        <span style="color: var(--accent-green);">平常運転</span>
+                    </div>
+                    <div class="line-meta">
+                        <span>東京 ⇄ 博多</span>
+                        <span>のぞみ・ひかり・こだま</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                </div>
+
+                <div class="line-item">
+                    <div class="line-title">
+                        <span>東北・北海道新幹線</span>
+                        <span style="color: var(--accent-green);">平常運転</span>
+                    </div>
+                    <div class="line-meta">
+                        <span>東京 ⇄ 新函館北斗</span>
+                        <span>はやぶさ・やまびこ</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 98%;"></div></div>
+                </div>
+
+                <div class="line-item">
+                    <div class="line-title">
+                        <span>次世代試作線（S300/K700）</span>
+                        <span style="color: var(--accent-cyan);">高速テスト走行中</span>
+                    </div>
+                    <div class="line-meta">
+                        <span>新山口 ⇄ 徳山 ⇄ 広島</span>
+                        <span>360 km/h 連続計測</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 100%; background: var(--accent-cyan);"></div></div>
+                </div>
+
+                <div class="line-item">
+                    <div class="line-title">
+                        <span>山陽本線（厚狭〜徳山）</span>
+                        <span style="color: var(--accent-warn);">一部混雑</span>
+                    </div>
+                    <div class="line-meta">
+                        <span>下関 ⇄ 岩国</span>
+                        <span>遅延: 約2分</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 85%; background: var(--accent-warn);"></div></div>
+                </div>
+
+                <div class="line-item">
+                    <div class="line-title">
+                        <span>北陸新幹線</span>
+                        <span style="color: var(--accent-green);">平常運転</span>
+                    </div>
+                    <div class="line-meta">
+                        <span>東京 ⇄ 敦賀</span>
+                        <span>かがやき・はくたか</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央パネル：マッププレビュー -->
+        <div class="panel" style="background: transparent; border: none; box-shadow: none;">
+            <div class="map-wrapper">
+                <canvas id="railMap"></canvas>
+                <div class="map-controls">
+                    <button class="btn active">全路線ネットワーク</button>
+                    <button class="btn">新幹線メイン</button>
+                    <button class="btn">風圧・気流オーバーレイ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右パネル：テレメトリ＆システムログ -->
+        <div class="panel">
+            <div class="panel-header">車両・風圧・テレメトリ</div>
+            <div class="panel-body">
+                <div class="gauge-container">
+                    <div class="gauge-card">
+                        <div class="gauge-label">最高通過速度</div>
+                        <div class="gauge-value" id="speedVal">285 <span style="font-size: 0.8rem;">km/h</span></div>
+                    </div>
+                    <div class="gauge-card">
+                        <div class="gauge-label">編成表面風圧</div>
+                        <div class="gauge-value" id="pressureVal">1.24 <span style="font-size: 0.8rem;">kPa</span></div>
+                    </div>
+                    <div class="gauge-card">
+                        <div class="gauge-label">架線離線率</div>
+                        <div class="gauge-value" style="color: var(--accent-green);">0.02 %</div>
+                    </div>
+                    <div class="gauge-card">
+                        <div class="gauge-label">軌道変位指数</div>
+                        <div class="gauge-value" style="color: var(--accent-green);">0.11 mm</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.8rem; font-weight: bold; margin-bottom: 8px; color: var(--accent-cyan);">
+                    リアルタイム監視ログ
+                </div>
+                <div class="terminal-log" id="logTerminal">
+                    <div class="log-entry"><span class="log-time">[12:00:01]</span><span class="log-tag">[SYS]</span>全国統合データベース同期完了</div>
+                    <div class="log-entry"><span class="log-time">[12:00:03]</span><span class="log-tag">[TRAIN]</span>のぞみ22号 (N700S) 新山口駅定刻発車</div>
+                    <div class="log-entry"><span class="log-time">[12:00:07]</span><span class="log-tag">[SENSOR]</span>徳山駅3番線風速センサー: 2.1m/s 正常</div>
+                    <div class="log-entry"><span class="log-time">[12:00:12]</span><span class="log-tag">[TEST]</span>S300系開発機 A編成：風圧シミュレーションログ取得中</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 時計更新
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toTimeString().split(' ')[0] + ' JST';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // リアルタイム・数値揺らぎ演出
+        setInterval(() => {
+            const speed = (280 + Math.random() * 10).toFixed(0);
+            const pressure = (1.18 + Math.random() * 0.15).toFixed(2);
+            document.getElementById('speedVal').innerHTML = `${speed} <span style="font-size: 0.8rem;">km/h</span>`;
+            document.getElementById('pressureVal').innerHTML = `${pressure} <span style="font-size: 0.8rem;">kPa</span>`;
+        }, 1500);
+
+        // ターミナルログ追加
+        const logTerminal = document.getElementById('logTerminal');
+        const stations = ['東京', '名古屋', '新大阪', '岡山', '新山口', '徳山', '博多', '仙台'];
+        const types = ['のぞみ', 'ひかり', 'さくら', 'はやぶさ', '回送試験列車'];
+        
+        setInterval(() => {
+            const time = new Date().toTimeString().split(' ')[0];
+            const st = stations[Math.floor(Math.random() * stations.length)];
+            const tp = types[Math.floor(Math.random() * types.length)];
+            const num = Math.floor(Math.random() * 100) + 1;
+            
+            const log = document.createElement('div');
+            log.className = 'log-entry';
+            log.innerHTML = `<span class="log-time">[${time}]</span><span class="log-tag">[LIVE]</span>${tp}${num}号：${st}セクター通過検知 (正常)`;
+            logTerminal.appendChild(log);
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+
+            if (logTerminal.children.length > 30) {
+                logTerminal.removeChild(logTerminal.firstChild);
+            }
+        }, 3000);
+
+        // Canvasマップ描画エンジン
+        const canvas = document.getElementById('railMap');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 主要ノード (駅位置の抽象座標)
+        const nodes = [
+            { id: 'hakata', name: '博多', x: 0.18, y: 0.75 },
+            { id: 'shinyamaguchi', name: '新山口', x: 0.28, y: 0.70 },
+            { id: 'tokuyama', name: '徳山', x: 0.33, y: 0.68 },
+            { id: 'hiroshima', name: '広島', x: 0.40, y: 0.65 },
+            { id: 'okayama', name: '岡山', x: 0.52, y: 0.60 },
+            { id: 'shinosaka', name: '新大阪', x: 0.63, y: 0.55 },
+            { id: 'nagoya', name: '名古屋', x: 0.73, y: 0.50 },
+            { id: 'tokyo', name: '東京', x: 0.85, y: 0.42 },
+            { id: 'sendai', name: '仙台', x: 0.88, y: 0.28 },
+            { id: 'sapporo', name: '札幌', x: 0.90, y: 0.12 }
+        ];
+
+        // 路線（エッジ）
+        const connections = [
+            ['hakata', 'shinyamaguchi'],
+            ['shinyamaguchi', 'tokuyama'],
+            ['tokuyama', 'hiroshima'],
+            ['hiroshima', 'okayama'],
+            ['okayama', 'shinosaka'],
+            ['shinosaka', 'nagoya'],
+            ['nagoya', 'tokyo'],
+            ['tokyo', 'sendai'],
+            ['sendai', 'sapporo']
+        ];
+
+        // 移動する列車パーティクル
+        const trains = [];
+        for (let i = 0; i < 12; i++) {
+            trains.push({
+                segmentIndex: Math.floor(Math.random() * connections.length),
+                progress: Math.random(),
+                speed: 0.0015 + Math.random() * 0.002,
+                direction: Math.random() > 0.5 ? 1 : -1
+            });
+        }
+
+        function drawMap() {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 背景グリッド描画
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 1;
+            const gridSize = 40;
+            for (let x = 0; x < w; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            // 路線ラインの描画
+            connections.forEach(([startId, endId]) => {
+                const n1 = nodes.find(n => n.id === startId);
+                const n2 = nodes.find(n => n.id === endId);
+
+                const x1 = n1.x * w, y1 = n1.y * h;
+                const x2 = n2.x * w, y2 = n2.y * h;
+
+                // グローエフェクト
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // コアライン
+                ctx.strokeStyle = '#00f0ff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            });
+
+            // 列車（パーティクル）の更新と描画
+            trains.forEach(t => {
+                t.progress += t.speed * t.direction;
+                if (t.progress >= 1) {
+                    t.progress = 0;
+                    t.segmentIndex = (t.segmentIndex + 1) % connections.length;
+                } else if (t.progress <= 0) {
+                    t.progress = 1;
+                    t.segmentIndex = (t.segmentIndex - 1 + connections.length) % connections.length;
+                }
+
+                const [startId, endId] = connections[t.segmentIndex];
+                const n1 = nodes.find(n => n.id === startId);
+                const n2 = nodes.find(n => n.id === endId);
+
+                const tx = (n1.x + (n2.x - n1.x) * t.progress) * w;
+                const ty = (n1.y + (n2.y - n1.y) * t.progress) * h;
+
+                // 光る光弾列車
+                ctx.fillStyle = '#00ff88';
+                ctx.shadowColor = '#00ff88';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // リセット
+            });
+
+            // 駅ノードの描画
+            nodes.forEach(n => {
+                const nx = n.x * w;
+                const ny = n.y * h;
+
+                ctx.fillStyle = '#0d1527';
+                ctx.strokeStyle = '#00f0ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(nx, ny, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // 駅名ラベル
+                ctx.fillStyle = '#f0f6fc';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(n.name, nx + 10, ny + 4);
+            });
+
+            requestAnimationFrame(drawMap);
+        }
+
+        drawMap();
+    </script>
+</body>
+</html>
